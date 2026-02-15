@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semakan e-RPH 2026 | SMK SELIRIK</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Gaya Paparan Skrin */
+        body {
+            background-color: #4a0404; /* Dark Maroon */
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-section {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 3px solid #ffd700;
+        }
+
+        .school-logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .search-container {
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .form-control { border-radius: 10px; padding: 12px; }
+
+        .btn-check-record {
+            background-color: #ffd700;
+            color: #4a0404;
+            font-weight: bold;
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border: none;
+        }
+
+        .btn-print {
+            background-color: #6c757d;
+            color: white;
+            border-radius: 10px;
+            padding: 8px 20px;
+            float: right;
+            border: none;
+        }
+
+        .profile-card {
+            background: white;
+            color: #333;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 40px;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 15px;
+            border: 4px solid #4a0404;
+        }
+
+        .stats-badge {
+            font-size: 0.85rem;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #ddd;
+        }
+
+        .bg-missed { background-color: #f8d7da; color: #721c24; }
+        .bg-submitted { background-color: #d4edda; color: #155724; }
+
+        .table-responsive { margin-top: 20px; border-radius: 10px; overflow: hidden; }
+        .table thead { background-color: #4a0404; color: white; }
+
+        .status-tag {
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .status-hantar { background-color: #28a745; color: white; }
+        .status-lewat { background-color: #ffc107; color: black; }
+        .status-tiada { background-color: #dc3545; color: white; }
+
+        footer { margin-top: auto; text-align: center; padding: 20px; font-size: 0.8rem; }
+
+        /* GAYA APABILA DICETAK (PRINT) */
+        @media print {
+            body { background: white !important; color: black !important; }
+            .search-container, footer, .btn-print, .btn-check-record, .header-section h4 {
+                display: none !important;
+            }
+            .header-section {
+                border-bottom: 2px solid #000;
+                padding: 10px;
+                background: none !important;
+            }
+            .header-section h1 { color: black !important; font-size: 1.5rem; }
+            .profile-card {
+                display: block !important;
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .table thead { background-color: #eee !important; color: black !important; border: 1px solid #000; }
+            .table td, .table th { border: 1px solid #ccc !important; font-size: 10pt; }
+            .stats-badge { border: 1px solid #000 !important; color: black !important; background: none !important; }
+            .status-tag { border: 1px solid #000; color: black !important; background: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-section">
+        <img id="schoolLogo" src="" alt="Logo" class="school-logo">
+        <h1 class="fw-bold">SMK SELIRIK, KAPIT</h1>
+        <h4>Portal Semakan Rekod e-RPH 2026</h4>
+    </div>
+
+    <div class="container">
+        <div class="search-container">
+            <label class="form-label text-white">No. Kad Pengenalan (Tanpa '-'):</label>
+            <input type="text" id="icInput" class="form-control" placeholder="Contoh: 850101135566">
+            <button class="btn btn-check-record" onclick="searchRecord()">SEMAK REKOD</button>
+            <div id="loading" class="text-center mt-3" style="display:none;">
+                <div class="spinner-border text-warning"></div>
+            </div>
+        </div>
+
+        <div id="resultArea" class="profile-card">
+            <button class="btn-print" onclick="window.print()">🖨️ Cetak Rekod</button>
+            <div class="row align-items-center mt-4">
+                <div class="col-md-3 text-center">
+                    <img id="profilePic" src="" alt="Profil" class="profile-img mb-3">
+                </div>
+                <div class="col-md-9">
+                    <h2 id="guruName" class="fw-bold text-uppercase mb-1"></h2>
+                    <p class="mb-1"><strong>No. KP:</strong> <span id="guruIC"></span></p>
+                    <p class="mb-3"><strong id="guruJawatan" style="font-size: 1.1rem; color: #4a0404;"></strong></p>
+                    
+                    <div class="row g-2 text-dark">
+                        <div class="col-6 col-md-3">
+                            <div class="stats-badge bg-submitted">Hantar: <span id="statHantar"></span></div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="stats-badge bg-missed">Tidak: <span id="statTidak"></span></div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="stats-badge">Minggu: <span id="statMinggu"></span></div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="stats-badge bg-warning">Peratus: <span id="statPeratus"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 p-2 border-start border-4 border-primary bg-light text-dark">
+                <small id="guruCatatan"></small>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Minggu</th>
+                            <th>Tarikh</th>
+                            <th>Hantar Pada</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="weekTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer>Hakcipta NDJE@Selirik, Kapit 2026</footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script>
+        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSAfGkb0V0XOKhlyjNgHNeSTVoRO6tw8gorjTKVzJ9lqLwm_pL38utfOBJOu7yXBMszjk6m78XP_6f2/pub?gid=1853580490&single=true&output=csv";
+
+        const col = { logo:0, ic:1, nama:2, jawatan:3, gambar:4, tidak:189, hantar:190, total:191, peratus:192, catatan:193 };
+
+        // Definisi Kolum: [Minggu, Tarikh, Col_TarikhHantar, Col_Status]
+        const weeksData = [
+            [1,"01.02.26",6,7],[2,"01.02.26",10,11],[3,"01.02.26",14,15],[4,"08.02.26",18,19],[5,"15.02.26",22,23],
+            [6,"22.02.26",26,27],[7,"01.03.26",30,31],[8,"08.03.26",34,35],[9,"15.03.26",38,39],[10,"22.03.26",42,43],
+            [11,"05.04.26",46,47],[12,"12.04.26",50,51],[13,"19.04.26",55,56],[14,"26.04.26",58,59],[15,"03.05.26",62,63],
+            [16,"10.05.26",66,67],[17,"17.05.26",70,71],[18,"24.05.26",74,75],[19,"14.06.26",78,79],[20,"21.06.26",82,83],
+            [21,"28.06.26",86,87],[22,"05.07.26",90,91],[23,"12.07.26",94,95],[24,"19.07.26",98,99],[25,"26.07.26",102,103],
+            [26,"02.08.26",106,107],[27,"09.08.26",110,111],[28,"16.08.26",114,115],[29,"23.08.26",118,119],[30,"30.08.26",122,123],
+            [31,"13.09.26",126,127],[32,"20.09.26",130,131],[33,"27.09.26",134,135],[34,"04.10.26",138,139],[35,"11.10.26",142,143],
+            [36,"18.10.26",146,147],[37,"25.10.26",150,151],[38,"01.11.26",154,155],[39,"08.11.26",158,159],[40,"15.11.26",162,163],
+            [41,"22.11.26",166,167],[42,"29.11.26",170,171],[43,"04.12.26",174,175]
+        ];
+
+        window.onload = () => {
+            Papa.parse(sheetUrl, { download: true, complete: res => {
+                document.getElementById('schoolLogo').src = res.data[0][col.logo];
+            }});
+        };
+
+        function searchRecord() {
+            const icVal = document.getElementById('icInput').value.trim();
+            if(!icVal) return alert("Sila masukkan IC");
+
+            document.getElementById('loading').style.display = 'block';
+            
+            Papa.parse(sheetUrl, {
+                download: true,
+                complete: results => {
+                    document.getElementById('loading').style.display = 'none';
+                    const teacher = results.data.find(r => r[col.ic] === icVal);
+                    if(teacher) showData(teacher);
+                    else alert("Rekod tidak dijumpai.");
+                }
+            });
+        }
+
+        function showData(row) {
+            document.getElementById('resultArea').style.display = 'block';
+            document.getElementById('guruName').innerText = row[col.nama];
+            document.getElementById('guruIC').innerText = row[col.ic];
+            document.getElementById('guruJawatan').innerText = row[col.jawatan];
+            document.getElementById('profilePic').src = row[col.gambar] || "https://via.placeholder.com/150";
+            document.getElementById('statTidak').innerText = row[col.tidak];
+            document.getElementById('statHantar').innerText = row[col.hantar];
+            document.getElementById('statMinggu').innerText = row[col.total];
+            document.getElementById('statPeratus').innerText = row[col.peratus];
+            document.getElementById('guruCatatan').innerText = "CATATAN: " + (row[col.catatan] || "Tiada");
+
+            const tbody = document.getElementById('weekTableBody');
+            tbody.innerHTML = "";
+            weeksData.forEach(w => {
+                const status = row[w[3]] || "TIADA";
+                let sClass = status.includes("Hantar") ? "status-hantar" : (status.includes("Lewat") ? "status-lewat" : "status-tiada");
+                tbody.innerHTML += `<tr>
+                    <td>M${w[0]}</td>
+                    <td>${w[1]}</td>
+                    <td>${row[w[2]] || "-"}</td>
+                    <td><span class="status-tag ${sClass}">${status}</span></td>
+                </tr>`;
+            });
+            document.getElementById('resultArea').scrollIntoView({behavior: 'smooth'});
+        }
+    </script>
+</body>
+</html>
